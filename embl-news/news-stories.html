@@ -1,22 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="injectEBIFramework.js"></script>
+  <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/js/injectEBIFramework.js"></script>
   <script type="text/javascript">injectEBIFramework();</script>
   <meta charset="utf-8">
   <title> Analytics dashboards &lt;  EBI Pattern library &lt; EMBL-EBI</title>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
 </head>
-<body>
-
-
-
-
-    <div id="content" role="main" class="row">
-
-      <h2><a href="//ebiwd.github.io/EBI-Pattern-library" title="Back to EBI Pattern library homepage">EMBL Weekly news dashbaord</a></h2>
-      <section>
+<body>  
+  <div id="content" role="main" class="row">
+    <h2><a href="//ebiwd.github.io/EBI-Pattern-library" title="Back to EBI Pattern library homepage">EMBL Weekly news dashbaord</a></h2>
+    <section>
 
         <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrump is needed uncomment the below -->
         <!--
@@ -83,8 +78,6 @@
   </li>
 </ul>
 
-
-
 <!-- Via: https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/ -->
 
 <!-- Load the Embed API library. -->
@@ -107,28 +100,18 @@
 </style>
 
 <!-- Load the components and their dependencies. -->
-
 <!-- This demo uses the Chart.js graphing library and Moment.js to do date
      formatting and manipulation. -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
-
 <!-- Include the ViewSelector2 component script. -->
 <!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/view-selector2.js"></script> -->
-
 <!-- Include the DateRangeSelector component script. -->
 <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/date-range-selector.js"></script>
-
 <!-- Include the ActiveUsers component script. -->
 <!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/active-users.js"></script> -->
-
 <!-- Include the CSS that styles the charts. -->
 <!-- <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css"> -->
-
-
-
-
-
 
 
 <!-- Add HTML containers to host the dashboard components. -->
@@ -147,7 +130,6 @@
   <figure class="Chartjs-figure" id="chart-1-container"></figure>
   <ol class="Chartjs-legend" id="legend-1-container"></ol>
 </div>
-
 
 <div class="traffic-overview"></div>
 
@@ -186,8 +168,6 @@
 <script>
 
 $(document).ready(function() { 
-
-
   // Initialise all the queries.
   // This gets invoke when google is ready and when the user calls a refresh by selecting a date
   // requestedOriginDate = YYYYMMDD format, ie: 20170122
@@ -246,26 +226,16 @@ $(document).ready(function() {
 });
 
 </script>
-
-
-
-        </div>
-
-      </section>
-
-    </div><!-- /.container -->
-
-    <footer>
-  <!-- Optional local footer (insert citation / project-specific copyright / etc here -->
+     </div>
+  </section>
+</div><!-- /.container -->
+<footer>
   <div id="local-footer">
     <div class="row">
       <div class="reference padding-top-large padding-bottom-large small">The EBI Visual Framework and Pattern libary are maintaind by <a href="https://github.com/ebiwd">Web Development</a> and overseen by <a href="https://www.ebi.ac.uk/seqdb/confluence/display/WGC/Meeting+notes">the Web Guidelines Committee</a>.</div>
     </div>
   </div>
-  <!-- End optional local footer -->
-
 </footer>
-
 
 </body>
 </html>
