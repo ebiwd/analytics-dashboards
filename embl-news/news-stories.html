@@ -1,155 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="injectEBIFramework.js"></script>
+  <script type="text/javascript">injectEBIFramework();</script>
   <meta charset="utf-8">
   <title> Analytics dashboards &lt;  EBI Pattern library &lt; EMBL-EBI</title>
-  <meta name="description" content="EMBL-EBI"><!-- Describe what this page is about -->
-  <meta name="keywords" content="analytics bioinformatics, europe, institute, ebi"><!-- A few keywords that relate to the content of THIS PAGE (not the whol project) -->
-  <meta name="author" content="EMBL-EBI"><!-- Your [project-name] here -->
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="MobileOptimized" content="width" />
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#70BDBD"> <!-- Android Chrome mobile browser tab color -->
-
-  <!-- Add information on the life cycle of this page -->
-  <meta name="ebi:owner" content="Web Development"> <!-- Who should be contacted about changes -->
-  <meta name="ebi:review-cycle" content="180"> <!-- In days, how often should the content be reviewed -->
-  <meta name="ebi:last-review" content="2016-11-10"> <!-- The last time the content was reviewed -->
-  <meta name="ebi:expiry" content="2018-11-10"> <!-- When this content is no longer relevant -->
-
-  <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
-  <link rel="dns-prefetch" href="//ebi.ac.uk" />
-
-  <!-- If you have custom icon, replace these as appropriate.
-       You can generate them at realfavicongenerator.net -->
-  <link rel="icon" type="image/x-icon" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/favicon.ico" />
-  <link rel="icon" type="image/png" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="192×192" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/android-chrome-192x192.png" /> <!-- Android (192px) -->
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/apple-icon-114x114.png"> <!-- For iPhone 4 Retina display (114px) -->
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/apple-icon-72x72.png"> <!-- For iPad (72px) -->
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/apple-icon-144x144.png"> <!-- For iPad retinat (144px) -->
-  <link rel="apple-touch-icon-precomposed" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/apple-icon-57x57.png"> <!-- For iPhone (57px) -->
-  <link rel="mask-icon" href="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/safari-pinned-tab.svg" color="#ffffff"> <!-- Safari icon for pinned tab -->
-  <meta name="msapplication-TileColor" content="#2b5797"> <!-- MS Icons -->
-  <meta name="msapplication-TileImage" content="https://www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/logos/EMBL-EBI/favicons/mstile-144x144.png">
-
-  <!-- CSS: implied media=all -->
-  <!-- CSS concatenated and minified via ant build script-->
-  <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/foundation-6/css/foundation.css" type="text/css" media="all">
-  <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/css/ebi-global.css" type="text/css" media="all">
-  <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Icon-fonts/v1.1/fonts.css" type="text/css" media="all">
-
-  <!-- Use this CSS file for any custom styling -->
-  <!--
-    <link rel="stylesheet" href="css/custom.css" type="text/css" media="all">
-  -->
-
-
-
-  <!-- If you have a custom header image or colour -->
-  <!--
-  -->
-  <meta name="ebi:localmasthead-color" content="#091314">
-  <meta name="ebi:localmasthead-image" content="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/images/backgrounds/embl-ebi-background-4.jpg">
-
-    <!-- you can replace this with theme-[projectname].css. See http://www.ebi.ac.uk/web/style/colour for details of how to do this -->
-  <!-- also inform ES so we can host your colour palette file -->
-  <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/css/theme-embl-petrol.css" type="text/css" media="all">
-
-  <!-- for production the above can be replaced with -->
-  <!--
-  <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/css/compliance/mini/ebi-fluid-embl.css">
-  -->
-
-  <!-- end CSS-->
-
-
-  <!-- All JavaScript at the bottom, except for Modernizr -->
-  <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/modernizr/modernizr.custom.49274.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
 </head>
 <body>
 
 
 
-      <div id="skip-to">
-    <ul>
-      <li><a href="#content">Skip to main content</a></li>
-      <li><a href="#local-nav">Skip to local navigation</a></li>
-      <li><a href="#global-nav">Skip to EBI global navigation menu</a></li>
-      <li><a href="#global-nav-expanded">Skip to expanded EBI global navigation menu (includes all sub-sections)</a></li>
-    </ul>
-  </div>
-
-  <div data-sticky-container>
-    <div id="local-masthead" data-sticky data-sticky-on="large" data-top-anchor="180" data-btm-anchor="300000">
-      <header>
-
-        <div id="global-masthead" class="clearfix">
-          <!--This has to be one line and no newline characters-->
-          <a href="//www.ebi.ac.uk/" title="Go to the EMBL-EBI homepage"><span class="ebi-logo"></span></a>
-
-          <nav>
-            <div class="row">
-              <ul id="global-nav" class="menu">
-                <!-- set active class as appropriate -->
-                <li id="home-mobile" class=""><a href="//www.ebi.ac.uk"></a></li>
-                <li id="home" class="active"><a href="//www.ebi.ac.uk"><i class="icon icon-generic" data-icon="H"></i> EMBL-EBI</a></li>
-                <li id="services"><a href="//www.ebi.ac.uk/services"><i class="icon icon-generic" data-icon="("></i> Services</a></li>
-                <li id="research"><a href="//www.ebi.ac.uk/research"><i class="icon icon-generic" data-icon=")"></i> Research</a></li>
-                <li id="training"><a href="//www.ebi.ac.uk/training"><i class="icon icon-generic" data-icon="t"></i> Training</a></li>
-                <li id="about"><a href="//www.ebi.ac.uk/about"><i class="icon icon-generic" data-icon="i"></i> About us</a></li>
-                <li id="search">
-                  <a href="#" data-toggle="search-global-dropdown"><i class="icon icon-functional" data-icon="1"></i> <span class="show-for-small-only">Search</span></a>
-                  <div id="search-global-dropdown" class="dropdown-pane" data-dropdown data-options="closeOnClick:true;">
-                    <form id="global-search" name="global-search" action="/ebisearch/search.ebi" method="GET">
-                      <fieldset>
-                        <div class="input-group">
-                          <input type="text" name="query" id="global-searchbox" class="input-group-field" placeholder="Search all of EMBL-EBI">
-                          <div class="input-group-button">
-                            <input type="submit" name="submit" value="Search" class="button">
-                            <input type="hidden" name="db" value="allebi" checked="checked">
-                            <input type="hidden" name="requestFrom" value="global-masthead" checked="checked">
-                          </div>
-                        </div>
-                      </fieldset>
-                    </form>
-                  </div>
-                </li>
-                <li class="float-right show-for-medium embl-selector">
-                  <button class="button float-right" type="button" data-toggle="embl-dropdown">Hinxton</button>
-                  <!-- The dropdown menu will be programatically added by script.js -->
-                </li>
-              </ul>
-            </div>
-          </nav>
-
-        </div>
-
-        <div class="masthead row">
-
-          <!-- local-title -->
-          <div class="columns medium-7" id="local-title">
-            <h1><a href="//ebiwd.github.io/EBI-Pattern-library" title="Back to EBI Pattern library homepage">EMBL Weekly news dashbaord</a></h1>
-          </div>
-          <!-- /local-title -->
-
-          <!-- local-nav -->
-              <nav >
-                <ul class="dropdown menu float-left" data-description="navigational" data-dropdown-menu>
-                  <li class="active"><a href="//ebiwd.github.io/EBI-Pattern-library/" class="active">Dashboard</a></li>
-                </ul>
-              </nav>
-          <!-- /local-nav -->
-
-        </div>
-
-      </header>
-
-      </div>
-  </div>
 
     <div id="content" role="main" class="row">
 
+      <h2><a href="//ebiwd.github.io/EBI-Pattern-library" title="Back to EBI Pattern library homepage">EMBL Weekly news dashbaord</a></h2>
       <section>
 
         <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrump is needed uncomment the below -->
@@ -167,6 +33,8 @@
         -->
 
         <div class="row" id="main-content-area">
+
+
 
 <ul class="accordion" data-accordion data-multi-expand="true">
 
@@ -234,7 +102,7 @@
   td.tr-referals {
     max-width: 400px;
     overflow: hidden;
-    display: block;
+    display: block;  
   }
 </style>
 
@@ -257,7 +125,9 @@
 <!-- Include the CSS that styles the charts. -->
 <!-- <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css"> -->
 
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
+
+
+
 
 
 
@@ -304,6 +174,7 @@
 
 <div class="referer-test"></div>
 
+
 <!-- charting stuff -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
 <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css">
@@ -313,6 +184,9 @@
 <script src="ebiAnalyticsDashboard-newsstories.js"></script>
 
 <script>
+
+$(document).ready(function() { 
+
 
   // Initialise all the queries.
   // This gets invoke when google is ready and when the user calls a refresh by selecting a date
@@ -337,7 +211,7 @@
       shared['filters']+'',shared);
 
 
-    $("#table-report").tablesorter();
+    $("#table-report").tablesorter();  
   }
 
   // allow the user to change the query
@@ -357,7 +231,7 @@
     var userChangedDateTimeoutID;
     $('#originDate').change( function () {
       window.clearTimeout(userChangedDateTimeoutID); // delete any pending change that occured before the timeout cleared
-      userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750);
+      userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750); 
     });
   }
 
@@ -369,7 +243,10 @@
     enableUserDatePicking();
   });
 
+});
+
 </script>
+
 
 
         </div>
@@ -387,37 +264,8 @@
   </div>
   <!-- End optional local footer -->
 
-  <div id="global-footer">
-
-    <nav id="global-nav-expanded" class="row">
-      <!-- Footer will be automatically inserted by footer.js -->
-    </nav>
-
-    <section id="ebi-footer-meta" class="row">
-      <!-- Footer meta will be automatically inserted by footer.js -->
-    </section>
-
-  </div>
-
 </footer>
 
-<!-- JavaScript -->
-
-<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-<!--
-<script>window.jQuery || document.write('<script src="../js/libs/jquery-1.10.2.min.js"><\/script>')</script>
--->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<!-- Your custom JavaScript file scan go here... change names accordingly -->
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/js/cookiebanner.js"></script>
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/js/foot.js"></script>
-<script defer="defer" src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/js/script.js"></script>
-
-<!-- The Foundation theme JavaScript -->
-<script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/foundation-6/js/foundation.js"></script>
-<script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/js/foundationExtendEBI.js"></script>
-<script type="text/JavaScript">$(document).foundation();</script>
-<script type="text/JavaScript">$(document).foundationExtendEBI();</script>
 
 </body>
 </html>
