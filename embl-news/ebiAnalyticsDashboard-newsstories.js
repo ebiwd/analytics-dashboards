@@ -59,6 +59,11 @@ function render_queue(target,processor,dimensions,metrics,filters,shared) {
       render_query_page_detail(target,dimensions,metrics,filters,shared);
       },render_queue_time);
   }
+  if (processor == "ui-regions") {
+    window.setTimeout(function(){
+      render_query_ui_regions(target,dimensions,metrics,filters,shared);
+      },render_queue_time);
+  }
   if (processor == "page-time") {
     window.setTimeout(function(){
       render_query_page_time(target,dimensions,metrics,filters,shared);
@@ -168,12 +173,16 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
     var receivedData = results[0].rows;
     for (var i = 0; i < receivedData.length; i++) {
       $(target).append('<tr class="result-'+ i + '">' + 
-        '<td>' + receivedData[i][0] +
-        '<br/><small><a target="_blank" href="http://news.embl.de' + receivedData[i][1] + '">'+ receivedData[i][1]+'</a></small></td>' +
-        '<td>' + parsePublicationDate(receivedData[i][1]) + '</td>' + 
-        '<td>' + receivedData[i][2] + '</td><td class="tr-referals small"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
+        '<td>' + 
+        '<span class="label">' + parsePublicationDate(receivedData[i][1]) + '</span>' +
+        '<div>' + receivedData[i][0] + '</div>' +
+        '<small><a target="_blank" href="http://news.embl.de' + receivedData[i][1] + '">'+ receivedData[i][1]+'</a></small></td>' +
+        '<td>' + receivedData[i][2] + '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
     
       render_queue('tr.result-'+i,'page-detail','ga:fullReferrer','ga:uniquePageviews',
+        'ga:pagePath=='+receivedData[i][1],shared);
+
+      render_queue('tr.result-'+i,'ui-regions','ga:eventAction','ga:uniqueEvents',
         'ga:pagePath=='+receivedData[i][1],shared);
 
       render_queue('tr.result-'+i,'page-time','ga:pagePath','ga:avgTimeOnPage',
@@ -189,8 +198,8 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
 
 // convert facebook.com/ to Facebook, etc.
 function parseReferralName(siteToParse) {
-  var original = ['facebook.com/']
-  var replacements = ['Facebook']
+  var original =     ['facebook', 't.co',   'google','pinterest','linkedin']
+  var replacements = ['Facebook', 'Twitter','Google','Pinterest','LinkedIn']
 
   for (var i = 0; i < original.length; i++) {
     if (siteToParse.indexOf(original[i]) >= 0) {
@@ -200,8 +209,6 @@ function parseReferralName(siteToParse) {
 
   // no match, return what it was:
   return siteToParse;
-
-
 }
 
 function render_query_page_detail(target,dimensions,metrics,filters,shared) {
@@ -228,6 +235,46 @@ function render_query_page_detail(target,dimensions,metrics,filters,shared) {
   });
 }
 
+function render_query_ui_regions(target,dimensions,metrics,filters,shared) {
+  if (requestIsExpired(shared['originDate'])) { return; }
+  var now = shared['originDate']; // .subtract(3, 'day');
+  var localQuery = query({
+    'ids': shared['viewID'],
+    'dimensions': dimensions,
+    'metrics': metrics,
+    'filters': filters,
+    'max-results': 12,
+    'sort': '-'+metrics,
+    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
+  });
+
+  Promise.all([localQuery]).then(function(results) {
+    var receivedData = results[0].rows;
+    // $(target).append('<td class=""></td>');
+
+    // track where users engaged
+    var totalContentClicks = 0;
+    var totalSiteNavClicks = 0;
+    
+    for (var i = 0; i < receivedData.length; i++) {
+      // is it a UI region?
+      if (receivedData[i][0].indexOf('UI Element') >= 0) {
+        // $(target+' td.tr-ui-regions').append('<tr><td>' + receivedData[i][0] +'</td><td>' + receivedData[i][1] + '</td></tr>');
+
+        if (receivedData[i][0].indexOf('UI Element / Content') >= 0) {
+          totalContentClicks++;
+        } else {
+          totalSiteNavClicks++;
+        }
+      }
+    }
+
+    // read out the sums
+    $(target+' td.tr-ui-regions').append('<tr><td>Total clicks</td><td>' + (totalSiteNavClicks + totalContentClicks) + '</td></tr>');
+    $(target+' td.tr-ui-regions').append('<tr><td>Content click ratio</td><td>' + Math.floor(totalContentClicks  / (totalSiteNavClicks + totalContentClicks) * 100 ) + '%</td></tr>');
+  });
+}
 
 function render_query_page_time(target,dimensions,metrics,filters,shared) {
   if (requestIsExpired(shared['originDate'])) { return; }
