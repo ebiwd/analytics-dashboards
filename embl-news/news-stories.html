@@ -8,7 +8,7 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
 </head>
-<body>  
+<body>
   <div id="content" role="main" class="row">
     <h2><a href="//ebiwd.github.io/EBI-Pattern-library" title="Back to EBI Pattern library homepage">EMBL Weekly news dashbaord</a></h2>
     <section>
@@ -40,10 +40,10 @@
       <ul>
         <li>JS link/event tracking</li>
         <ul>
-          <li> Need to add list of outbound link clicks/next link clicks with link tracking</li>
+          <li>Add ratio of clicks on content to overall page views</li>
           <li>Additional metrics and info might come in handy, such as pages (on the EMBL websites) visited from this page, searches performed, other actions taken (e.g. share button clicked, newsletter subscription etc.).</li>
         </ul>
-        <li>  Perhaps we should add desktop vs mobile stats per article?</li>
+        <li>Perhaps we should add desktop vs mobile stats per article?</li>
       </ul>
     </div>
   </li>  <li class="accordion-item" data-accordion-item>
@@ -51,17 +51,11 @@
     <div class="accordion-content" data-tab-content>
 
       <ul>
-        <li>Referers</li>
-        <ul>
-          <li>Perhaps some of these could get custom aliases? E.g. Google, Facebook, Facebook (mobile), Twitter, LinkedIn plus mail campaign tools etc. instead of providing the link. In addition, how about grouping them visually (e.g. to show all social media referrals together) and providing aggregated stats for those groups?</li>
-          <li>polish display of URls</li>
-          <li>merge mobile and desktop into one (i.e. Facebook vs m.facebook)</li>
-        </ul>
+        <li>Referers: Aggregate stats</li>
         <li>And I’m wondering whether we should have a line in the chart pointing to an average traffic..or the green/orange/red indicator showing how the number of views relate to the average article... Like the idea of various “averages”. Instinct suggest that metric should come from a human — if you will: targets for news stories for # of visits, bounce rate, time on page, etc.</li>
         <li>Lock date selector to weeks</li>
         <li>Dev tasks</li>
         <ul>
-          <li>Move to version control (github is most colab)</li>
           <li>Optimise code structure</li>
           <li>Expose somewhere for others to access. gh-pages? (users will still need to login to GA)</li>
         </ul>
@@ -95,7 +89,7 @@
   td.tr-referals {
     max-width: 400px;
     overflow: hidden;
-    display: block;  
+    display: block;
   }
 </style>
 
@@ -167,7 +161,7 @@
 
 <script>
 
-$(document).ready(function() { 
+$(document).ready(function() {
   // Initialise all the queries.
   // This gets invoke when google is ready and when the user calls a refresh by selecting a date
   // requestedOriginDate = YYYYMMDD format, ie: 20170122
@@ -191,7 +185,7 @@ $(document).ready(function() {
       shared['filters']+'',shared);
 
 
-    // $("#table-report").tablesorter();  
+    // $("#table-report").tablesorter();
   }
 
   // allow the user to change the query
@@ -211,7 +205,7 @@ $(document).ready(function() {
     var userChangedDateTimeoutID;
     $('#originDate').change( function () {
       window.clearTimeout(userChangedDateTimeoutID); // delete any pending change that occured before the timeout cleared
-      userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750); 
+      userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750);
     });
   }
 
