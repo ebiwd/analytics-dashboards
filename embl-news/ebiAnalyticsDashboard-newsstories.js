@@ -1,6 +1,10 @@
 // In short: fetches data from google API, show on dashboard
 // you need to authenticate in your local JS
 
+// various reusable icons
+var iconWarning = '<span class="icon icon-generic is-invalid-label" data-icon="l">  </span>';
+
+
 // extract the pub date from the url
 function parsePublicationDate(url) {
   var yearMonth = url.split('/')[2].substring(0,4);
@@ -77,15 +81,17 @@ function render_queue(target,processor,dimensions,metrics,filters,shared) {
 }
 
 function render_query_traffic_overview(target,dimensions,metrics,filters,shared) {
+  $('#table-header').html('Top stories from the past ' + (shared['dayRange']-1) + ' days');
+
   var now = shared['originDate']; // .subtract(3, 'day');
   var week1 = query({
     'ids': shared['viewID'],
     'dimensions': dimensions,
     'metrics': metrics,
     'filters': filters,
-    'max-results': 8,
+    'max-results': shared['dayRange'],
     // 'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 
@@ -94,10 +100,10 @@ function render_query_traffic_overview(target,dimensions,metrics,filters,shared)
     'dimensions': dimensions,
     'metrics': metrics,
     'filters': filters,
-    'max-results': 8,
+    'max-results': shared['dayRange'],
     // 'sort': '-'+metrics,
-    'start-date': moment(now).subtract(15, 'day').format('YYYY-MM-DD'),
-    'end-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD')
+    'start-date': moment(now).subtract(shared['dayRange']*2, 'day').format('YYYY-MM-DD'),
+    'end-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD')
   });
 
 
@@ -161,23 +167,32 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
     'filters': filters,
     'max-results': 8,
     'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 
   Promise.all([localQuery]).then(function(results) {
-    $('h2.local-title').html('This week vs last');
+    $('h2.local-title').html('This period vs last');
     $('.local-description').html('' + results[0].query['start-date'] + ' to ' + results[0].query['end-date'] + '');
 
     // once we know the top stories, perform queries about them
     var receivedData = results[0].rows;
     for (var i = 0; i < receivedData.length; i++) {
+      // save the total number of page views
+      shared['urlPageViews'] = receivedData[i][2];
+      var success = '';
+      if (shared['urlPageViews'] < 250) {
+        success = iconWarning;
+      }
+
+
       $(target).append('<tr class="result-'+ i + '">' + 
         '<td>' + 
         '<span class="label">' + parsePublicationDate(receivedData[i][1]) + '</span>' +
         '<div>' + receivedData[i][0] + '</div>' +
         '<small><a target="_blank" href="http://news.embl.de' + receivedData[i][1] + '">'+ receivedData[i][1]+'</a></small></td>' +
-        '<td>' + receivedData[i][2] + '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
+        '<td>' + shared['urlPageViews'] + success + '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
+
     
       render_queue('tr.result-'+i,'page-detail','ga:fullReferrer','ga:uniquePageviews',
         'ga:pagePath=='+receivedData[i][1],shared);
@@ -198,8 +213,8 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
 
 // convert facebook.com/ to Facebook, etc.
 function parseReferralName(siteToParse) {
-  var original =     ['facebook', 't.co',   'google','pinterest','linkedin']
-  var replacements = ['Facebook', 'Twitter','Google','Pinterest','LinkedIn']
+  var original =     ['facebook','t.co',   'google','pinterest','linkedin','ebi.ac','rssfeed','direct']
+  var replacements = ['Facebook','Twitter','Google','Pinterest','LinkedIn','EBI',   'RSS',    'Not specificed or bookmark']
 
   for (var i = 0; i < original.length; i++) {
     if (siteToParse.indexOf(original[i]) >= 0) {
@@ -221,7 +236,7 @@ function render_query_page_detail(target,dimensions,metrics,filters,shared) {
     'filters': filters,
     'max-results': 7,
     'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 
@@ -245,12 +260,13 @@ function render_query_ui_regions(target,dimensions,metrics,filters,shared) {
     'filters': filters,
     'max-results': 12,
     'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 
   Promise.all([localQuery]).then(function(results) {
     var receivedData = results[0].rows;
+    // console.table(results);
     // $(target).append('<td class=""></td>');
 
     // track where users engaged
@@ -270,9 +286,16 @@ function render_query_ui_regions(target,dimensions,metrics,filters,shared) {
       }
     }
 
+    var engagementPercent = (Math.floor(totalContentClicks / (totalContentClicks+shared['urlPageViews']) * 1000)) / 10; // the number of unique content clicks vs unique page views
+
     // read out the sums
-    $(target+' td.tr-ui-regions').append('<tr><td>Total clicks</td><td>' + (totalSiteNavClicks + totalContentClicks) + '</td></tr>');
-    $(target+' td.tr-ui-regions').append('<tr><td>Content click ratio</td><td>' + Math.floor(totalContentClicks  / (totalSiteNavClicks + totalContentClicks) * 100 ) + '%</td></tr>');
+    // $(target+' td.tr-ui-regions').append('<tr><td>Total clicks</td><td>' + (totalSiteNavClicks + totalContentClicks) + '</td></tr>');
+    // $(target+' td.tr-ui-regions').append('<tr><td>Content click ratio</td><td>' + Math.floor(totalContentClicks  / (totalSiteNavClicks + totalContentClicks) * 100 ) + '%</td></tr>');
+    $(target + ' td.tr-ui-regions').append('' + totalContentClicks + ' (' + engagementPercent + '%) <br/>');
+    if (engagementPercent < 2) {
+      $(target + ' td.tr-ui-regions').append(iconWarning);
+    }
+    // $(target + ' td.tr-ui-regions').append('Engagement %: ' + + '<br/>');
   });
 }
 
@@ -286,7 +309,7 @@ function render_query_page_time(target,dimensions,metrics,filters,shared) {
     'filters': filters,
     'max-results': 1,
     'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 
@@ -307,7 +330,7 @@ function render_query_leave_rate(target,dimensions,metrics,filters,shared) {
     'filters': filters,
     'max-results': 1,
     'sort': '-'+metrics,
-    'start-date': moment(now).subtract(8, 'day').format('YYYY-MM-DD'),
+    'start-date': moment(now).subtract(shared['dayRange'], 'day').format('YYYY-MM-DD'),
     'end-date': moment(now).subtract(1, 'day').format('YYYY-MM-DD')
   });
 

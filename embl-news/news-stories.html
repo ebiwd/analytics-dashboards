@@ -53,7 +53,7 @@
       <ul>
         <li>Referers</li>
         <ul>
-          <li>Perhaps some of these could get custom aliases? E.g. Google, Facebook, Facebook (mobile), Twitter, LinkedIn plus mail campaign tools etc. instead of providing the link. In addition, how about grouping them visually (e.g. to show all social media referrals together) and providing aggregated stats for those groups?</li>
+          <li>Aggregates stats for groups (social, newsletters, other)?</li>
           <li>polish display of URls</li>
           <li>merge mobile and desktop into one (i.e. Facebook vs m.facebook)</li>
         </ul>
@@ -135,8 +135,17 @@
 
 <hr />
 
-<h3>Top stories from the past 7 days</h3>
-<cite>Views are unique page views</cite>
+<h3 id="table-header">Loading...</h3>
+<div calss="callout">
+  <h4>Legend</h4>
+  <ul class="small">
+    <li>Views: unique page views. Target: 250 (assumes that stories are published mid-week cycles and will live roughly half on any week's report).</li>
+    <li>Referrers: -</li>
+    <li>Engagement: Number of unique clicks inside the content area. Percentage is clicks vs overall unique page views. Target: 2%</li>
+    <li>Time: In minutes. Target: 3 minutes.</li>
+    <li>Bounce: Those that took no action (not even clicking a link to leave the site), these are back buttons or closes. Target: 60%</li>
+  </ul>
+</div>
 
 <table id="table-report" class="hover tablesorter">
   <thead>
@@ -176,6 +185,7 @@ $(document).ready(function() {
     var shared = [];
     shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
     shared['datePeriods'] = ['day','month','year'];
+    shared['dayRange'] = 8; // the number of days you wish to get results for. Make this value +1 (1 week = 8 days, 2 wks = 15 days)
     shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
     shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
     shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
