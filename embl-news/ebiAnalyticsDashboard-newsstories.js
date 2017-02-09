@@ -1,8 +1,15 @@
 // In short: fetches data from google API, show on dashboard
 // you need to authenticate in your local JS
 
+// Store the data as an object.
+// Right now we don't use this for anything, but we could. Maybe we even save this data as a file in seperate process to the viewing...
+var analyticsResults = new Object();
+
 // various reusable icons
-var iconWarning = '<span class="icon icon-generic is-invalid-label" data-icon="l">  </span>';
+// var iconWarning = '<span class="icon icon-generic is-invalid-label" data-icon="l">  </span>',
+var iconWarning = '🤔',
+    iconSoSo = '😇',
+    iconSuccess = '🎉';
 
 
 // extract the pub date from the url
@@ -33,9 +40,9 @@ function numberWithCommas(x) {
 
 // check if the request has expired (that is: the user changed the params)
 function requestIsExpired(requestDate) {
-  console.log(moment(requestDate).format('YYYY-MM-DD'),document.getElementById("originDate").value);
+  // console.log(moment(requestDate).format('YYYY-MM-DD'),document.getElementById("originDate").value);
   if (moment(requestDate).format('YYYY-MM-DD') != document.getElementById("originDate").value) {
-    console.log('expired');
+    // console.log('expired');
     return true; // if the dates are out of sync, request has expired
   }
   return false; // request is still valid
@@ -44,38 +51,38 @@ function requestIsExpired(requestDate) {
 var render_queue_time = 1;
 // Queue up the requests to not exceed GA's requests per second (10 per second, per IP), 50,000 a day
 // https://developers.google.com/analytics/devguides/config/mgmt/v3/limits-quotas#general_api
-function render_queue(target,processor,dimensions,metrics,filters,shared) {
+function render_queue(target,processor,dimensions,metrics,filters,shared,resultPosition) {
   render_queue_time = render_queue_time + 500; // set requests XXms second apart
 
   if (processor == "traffic-overview") {
     window.setTimeout(function(){
-      render_query_traffic_overview(target,dimensions,metrics,filters,shared);
+      render_query_traffic_overview(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
 
   if (processor == "overview-list") {
     window.setTimeout(function(){
-      render_query_overview(target,dimensions,metrics,filters,shared);
+      render_query_overview(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
   if (processor == "page-detail") {
     window.setTimeout(function(){
-      render_query_page_detail(target,dimensions,metrics,filters,shared);
+      render_query_page_detail(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
   if (processor == "ui-regions") {
     window.setTimeout(function(){
-      render_query_ui_regions(target,dimensions,metrics,filters,shared);
+      render_query_ui_regions(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
   if (processor == "page-time") {
     window.setTimeout(function(){
-      render_query_page_time(target,dimensions,metrics,filters,shared);
+      render_query_page_time(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
   if (processor == "leave-rate") {
     window.setTimeout(function(){
-      render_query_leave_rate(target,dimensions,metrics,filters,shared);
+      render_query_leave_rate(target,dimensions,metrics,filters,shared,resultPosition);
       },render_queue_time);
   }
 }
@@ -108,8 +115,6 @@ function render_query_traffic_overview(target,dimensions,metrics,filters,shared)
 
 
   Promise.all([week1,week2]).then(function(results) {
-
-    // console.log(results);
 
     var labels = new Array();
 
@@ -172,39 +177,54 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
   });
 
   Promise.all([localQuery]).then(function(results) {
+
     $('h2.local-title').html('This period vs last');
     $('.local-description').html('' + results[0].query['start-date'] + ' to ' + results[0].query['end-date'] + '');
 
     // once we know the top stories, perform queries about them
     var receivedData = results[0].rows;
     for (var i = 0; i < receivedData.length; i++) {
-      // save the total number of page views
-      shared['urlPageViews'] = receivedData[i][2];
-      var success = '';
-      if (shared['urlPageViews'] < 250) {
+      // write to the saved object
+      analyticsResults[i] = new Object();
+
+      analyticsResults[i].title = receivedData[i][0];
+      analyticsResults[i].date = parsePublicationDate(receivedData[i][1]);
+      analyticsResults[i].url = receivedData[i][1];
+      analyticsResults[i].pageViews = receivedData[i][2];
+
+      // meets the pageviews target?
+      var success = iconSuccess;
+      if (analyticsResults[i].pageViews < 250) {
         success = iconWarning;
+      } else if (analyticsResults[i].pageViews < 300) {
+        success = iconSoSo;        
       }
 
 
       $(target).append('<tr class="result-'+ i + '">' + 
         '<td>' + 
-        '<span class="label">' + parsePublicationDate(receivedData[i][1]) + '</span>' +
-        '<div>' + receivedData[i][0] + '</div>' +
-        '<small><a target="_blank" href="http://news.embl.de' + receivedData[i][1] + '">'+ receivedData[i][1]+'</a></small></td>' +
-        '<td>' + shared['urlPageViews'] + success + '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
+        '<span class="label">' + parsePublicationDate(analyticsResults[i].url) + '</span>' +
+        '<div>' + analyticsResults[i].title + '</div>' +
+        '<small><a target="_blank" href="http://news.embl.de' + analyticsResults[i].url + '">'+ analyticsResults[i].url+'</a></small>'+
+        '<br/><small><a class="readmore" href="https://analytics.google.com/analytics/web/#report/content-pages/a21480202w75912813p91186979/%3Fexplorer-table.filter%3D' + encodeURIComponent(analyticsResults[i].url) + '" target="_blank">View GA for this URL</small>' +
+        '</td>' +
+        '<td>' + analyticsResults[i].pageViews + '<br/>' + success + 
+        '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
 
     
+// %2Fscience%2F1701-social-genetic-effects-health%2Findex.php
+
       render_queue('tr.result-'+i,'page-detail','ga:fullReferrer','ga:uniquePageviews',
-        'ga:pagePath=='+receivedData[i][1],shared);
+        'ga:pagePath=='+analyticsResults[i].url,shared,i);
 
       render_queue('tr.result-'+i,'ui-regions','ga:eventAction','ga:uniqueEvents',
-        'ga:pagePath=='+receivedData[i][1],shared);
+        'ga:pagePath=='+analyticsResults[i].url,shared,i);
 
       render_queue('tr.result-'+i,'page-time','ga:pagePath','ga:avgTimeOnPage',
-        'ga:pagePath=='+receivedData[i][1],shared);
+        'ga:pagePath=='+analyticsResults[i].url,shared,i);
 
       render_queue('tr.result-'+i,'leave-rate','ga:pagePath','ga:bounceRate',
-        'ga:pagePath=='+receivedData[i][1],shared);
+        'ga:pagePath=='+analyticsResults[i].url,shared,i);
     }
 
   });
@@ -226,7 +246,7 @@ function parseReferralName(siteToParse) {
   return siteToParse;
 }
 
-function render_query_page_detail(target,dimensions,metrics,filters,shared) {
+function render_query_page_detail(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -250,7 +270,7 @@ function render_query_page_detail(target,dimensions,metrics,filters,shared) {
   });
 }
 
-function render_query_ui_regions(target,dimensions,metrics,filters,shared) {
+function render_query_ui_regions(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -286,20 +306,22 @@ function render_query_ui_regions(target,dimensions,metrics,filters,shared) {
       }
     }
 
-    var engagementPercent = (Math.floor(totalContentClicks / (totalContentClicks+shared['urlPageViews']) * 1000)) / 10; // the number of unique content clicks vs unique page views
+    var engagementPercent = (Math.floor(totalContentClicks / (totalContentClicks+analyticsResults[resultPosition].pageViews) * 1000)) / 10; // the number of unique content clicks vs unique page views
 
     // read out the sums
     // $(target+' td.tr-ui-regions').append('<tr><td>Total clicks</td><td>' + (totalSiteNavClicks + totalContentClicks) + '</td></tr>');
     // $(target+' td.tr-ui-regions').append('<tr><td>Content click ratio</td><td>' + Math.floor(totalContentClicks  / (totalSiteNavClicks + totalContentClicks) * 100 ) + '%</td></tr>');
     $(target + ' td.tr-ui-regions').append('' + totalContentClicks + ' (' + engagementPercent + '%) <br/>');
+    var success = iconSuccess;
     if (engagementPercent < 2) {
-      $(target + ' td.tr-ui-regions').append(iconWarning);
+      success = iconWarning;
     }
+    $(target + ' td.tr-ui-regions').append(success);
     // $(target + ' td.tr-ui-regions').append('Engagement %: ' + + '<br/>');
   });
 }
 
-function render_query_page_time(target,dimensions,metrics,filters,shared) {
+function render_query_page_time(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -315,12 +337,23 @@ function render_query_page_time(target,dimensions,metrics,filters,shared) {
 
   Promise.all([localQuery]).then(function(results) {
     var receivedData = results[0].rows;
+    // console.log(receivedData[0][1], resultPosition);
     var timeOnPage = Math.round((receivedData[0][1] / 60) * 100) / 100;
-    $(target + ' td.tr-time-on-page').append('' + timeOnPage );
+    // meets the pageviews target?
+    var success = iconSuccess;
+    if (timeOnPage < 2) {
+      success = iconWarning;
+    } else if (timeOnPage < 3) {
+      success = iconSoSo;        
+    }
+
+
+
+    $(target + ' td.tr-time-on-page').append('' + timeOnPage + '<br/>' + success );
   });
 }
 
-function render_query_leave_rate(target,dimensions,metrics,filters,shared) {
+function render_query_leave_rate(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -335,17 +368,27 @@ function render_query_leave_rate(target,dimensions,metrics,filters,shared) {
   });
 
   Promise.all([localQuery]).then(function(results) {
-    console.table(results[0].rows);
-
+    // console.table(results[0].rows);
     var receivedData = results[0].rows;
+
+    // meets the pageviews target?
+    var success = iconSuccess;
+    if (receivedData[0][1] > 80) {
+      success = iconWarning;
+    } else if (receivedData[0][1] > 60) {
+      success = iconSoSo;        
+    }
+
+
     var leaveRate = Math.round((receivedData[0][1]) * 100) / 100;
-    $(target + ' td.tr-leave-rate').append('' + leaveRate +'% ');
+    $(target + ' td.tr-leave-rate').append('' + leaveRate +'% <br/>' + success);
+
 
     // update table sorting
-    $("#table-report").trigger('update');
+    // $("#table-report").trigger('update');
 
     // add pie graph
-    var uniqueID = Math.floor(Math.random() * 7);
+    var uniqueID = Math.floor(Math.random() * 1000);
     $(target + ' td.tr-leave-rate').prepend('<div id="leave-container-'+uniqueID+'"></div>');
     var labels = new Array();
 

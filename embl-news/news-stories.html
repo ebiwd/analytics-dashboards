@@ -85,6 +85,9 @@
     overflow: hidden;
     display: block;
   }
+  table tbody td {
+    vertical-align: top;
+  }  
 </style>
 
 <!-- Load the components and their dependencies. -->
@@ -131,7 +134,7 @@
     <li>Referrers: -</li>
     <li>Engagement: Number of unique clicks inside the content area. Percentage is clicks vs overall unique page views. Target: 2%</li>
     <li>Time: In minutes. Target: 3 minutes.</li>
-    <li>Bounce: Those that took no action (not even clicking a link to leave the site), these are back buttons or closes. Target: 60%</li>
+    <li>Bounce: Those that took no action during their visit (not even clicking a link to leave the site), these are single page views with back buttons or closes. Target: 60%</li>
   </ul>
 </div>
 
@@ -182,11 +185,11 @@ $(document).ready(function() {
 
     // Render traffic overview graph
     render_queue('.traffic-overview','traffic-overview','ga:date,ga:nthDay','ga:uniquePageviews',
-      shared['filters']+'',shared);
+      shared['filters']+'',shared,0);
 
     // Render all the of charts for this view.
     render_queue('.top-stories','overview-list','ga:pageTitle,ga:pagePath','ga:uniquePageviews',
-      shared['filters']+'',shared);
+      shared['filters']+'',shared,0);
 
 
     // $("#table-report").tablesorter();
