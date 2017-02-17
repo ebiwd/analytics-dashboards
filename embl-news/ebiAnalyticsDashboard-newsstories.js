@@ -195,6 +195,8 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
       analyticsResults[row].date = parsePublicationDate(receivedData[row][1]);
       analyticsResults[row].url = receivedData[row][1];
       analyticsResults[row].pageViews = receivedData[row][2];
+      analyticsResults[row]['clicks'] = new Object(); // we'll use later
+      analyticsResults[row]['referals'] = new Object(); // we'll use later
 
       // meets the pageviews target?
       var success = iconSuccess;
@@ -203,7 +205,6 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
       } else if (analyticsResults[row].pageViews < 300) {
         success = iconSoSo;        
       }
-
 
       $(target).append('<tr class="result-'+ row + '">' + 
         '<td>' + 
@@ -261,9 +262,19 @@ function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPositi
     var receivedData = results[0].rows;
     // $(target).append('<td class=""></td>');
     
+    // save the data
     for (var i = 0; i < receivedData.length; i++) {
-      $(target+' td.tr-referals').append('<tr><td>' + parseReferralName(receivedData[i][0]) +'</td><td>' + receivedData[i][1] + '</td></tr>');
+      analyticsResults[resultPosition]['referals'][parseReferralName(receivedData[i][0])] = receivedData[i][1]; 
     }
+
+    // sort
+    var dataSorted = Object.keys(analyticsResults[resultPosition]['referals']).sort(function(a,b){return analyticsResults[resultPosition]['referals'][b]-analyticsResults[resultPosition]['referals'][a]});
+
+    // output the data
+    dataSorted.forEach(function(element) {
+      $(target+' td.tr-referals').append('<tr><td>' + element +'</td><td>' + analyticsResults[resultPosition]['referals'][element] + '</td></tr>');
+    });
+      
   });
 }
 
@@ -282,35 +293,37 @@ function fetch_ui_regions(target,dimensions,metrics,filters,shared,resultPositio
   });
 
   Promise.all([localQuery]).then(function(results) {
+
     var receivedData = results[0].rows;
-    // console.table(results);
-    // $(target).append('<td class=""></td>');
+    // console.table(receivedData);
 
     // track where users engaged
-    var totalContentClicks = 0;
-    var totalSiteNavClicks = 0;
+    var totalContentClicks = 0,
+        totalSiteNavClicks = 0;
     
     for (var i = 0; i < receivedData.length; i++) {
       // is it a UI region?
       if (receivedData[i][0].indexOf('UI Element') >= 0) {
-        // $(target+' td.tr-ui-regions').append('<tr><td>' + receivedData[i][0] +'</td><td>' + receivedData[i][1] + '</td></tr>');
-
         if (receivedData[i][0].indexOf('UI Element / Content') >= 0) {
-          totalContentClicks++;
+          totalContentClicks += Math.floor(receivedData[i][1]);
         } else {
-          totalSiteNavClicks++;
+          totalSiteNavClicks += Math.floor(receivedData[i][1]);
         }
       }
     }
 
-    var engagementPercent = (Math.floor(totalContentClicks / (totalContentClicks+analyticsResults[resultPosition].pageViews) * 1000)) / 10; // the number of unique content clicks vs unique page views
+    // save the data
+    analyticsResults[resultPosition]['clicks'].content = totalContentClicks; 
+    analyticsResults[resultPosition]['clicks'].siteNav = totalSiteNavClicks; 
+
+    var engagementPercent = Math.floor(totalContentClicks / (totalContentClicks+Math.floor(analyticsResults[resultPosition].pageViews)) * 1000) / 10; // the number of unique content clicks vs unique page views
 
     // read out the sums
     // $(target+' td.tr-ui-regions').append('<tr><td>Total clicks</td><td>' + (totalSiteNavClicks + totalContentClicks) + '</td></tr>');
     // $(target+' td.tr-ui-regions').append('<tr><td>Content click ratio</td><td>' + Math.floor(totalContentClicks  / (totalSiteNavClicks + totalContentClicks) * 100 ) + '%</td></tr>');
     $(target + ' td.tr-ui-regions').append('' + totalContentClicks + ' (' + engagementPercent + '%) <br/>');
     var success = iconSuccess;
-    if (engagementPercent < 2) {
+    if (engagementPercent < 10) {
       success = iconWarning;
     }
     $(target + ' td.tr-ui-regions').prepend(success);
@@ -333,9 +346,10 @@ function fetch_page_time(target,dimensions,metrics,filters,shared,resultPosition
   });
 
   Promise.all([localQuery]).then(function(results) {
-    var receivedData = results[0].rows;
-    // console.log(receivedData[0][1], resultPosition);
-    var timeOnPage = Math.round((receivedData[0][1] / 60) * 100) / 100;
+    // save the data
+    analyticsResults[resultPosition].pageTime = results[0].rows[0][1]; 
+
+    var timeOnPage = Math.round((analyticsResults[resultPosition].pageTime / 60) * 100) / 100;
     // meets the pageviews target?
     var success = iconSuccess;
     if (timeOnPage < 2) {
@@ -343,8 +357,6 @@ function fetch_page_time(target,dimensions,metrics,filters,shared,resultPosition
     } else if (timeOnPage < 3) {
       success = iconSoSo;        
     }
-
-
 
     $(target + ' td.tr-time-on-page').append('' +success + timeOnPage);
   });
@@ -365,24 +377,24 @@ function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPositio
   });
 
   Promise.all([localQuery]).then(function(results) {
-    // console.table(results[0].rows);
-    var receivedData = results[0].rows;
+    // save the data
+    analyticsResults[resultPosition].bounceRate = results[0].rows[0][1]; 
 
     // meets the pageviews target?
     var success = iconSuccess;
-    if (receivedData[0][1] > 80) {
+    if (analyticsResults[resultPosition].bounceRate > 80) {
       success = iconWarning;
-    } else if (receivedData[0][1] > 60) {
+    } else if (analyticsResults[resultPosition].bounceRate > 60) {
       success = iconSoSo;        
     }
 
-
-    var leaveRate = Math.round((receivedData[0][1]) * 100) / 100;
-    $(target + ' td.tr-leave-rate').append(success + leaveRate +'%');
-
+    var leavePercent = Math.round((analyticsResults[resultPosition].bounceRate) * 100) / 100;
+    $(target + ' td.tr-leave-rate').append(success + leavePercent +'%');
 
     // update table sorting
     // $("#table-report").trigger('update');
+
+    console.log(analyticsResults[resultPosition]);
 
     // add pie graph
     var uniqueID = Math.floor(Math.random() * 1000);
@@ -390,21 +402,19 @@ function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPositio
     var labels = new Array();
 
     var data = [];
-    var colors = ['rgb(218,15,33)','rgb(109,171,73)','#D4CCC5','#E2EAE9','#F7464A'];
+    var colors = ['rgb(218,15,33)','rgb(109,171,73)'];
 
     // add the negative non 100% portion
     data.push({
-      label: results[0].rows[0][1],
-      value: +(1-(results[0].rows[0][1]/100)),
+      label: analyticsResults[resultPosition].bounceRate,
+      value: +(1-(analyticsResults[resultPosition].bounceRate/100)),
       color: colors[1]
     });
 
-    results[0].rows.forEach(function(row, i) {
-      data.push({
-        label: row[0],
-        value: +row[1]/100,
-        color: colors[i]
-      });
+    data.push({
+      // label: row[0],
+      value: +analyticsResults[resultPosition].bounceRate/100,
+      color: colors[0]
     });
 
     new Chart(makeCanvas('leave-container-'+uniqueID)).Pie(data);

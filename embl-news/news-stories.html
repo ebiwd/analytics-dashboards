@@ -140,7 +140,7 @@
   <ul class="small">
     <li>Views: unique page views. Target: 250 (assumes that stories are published mid-week cycles and will live roughly half on any week's report).</li>
     <li>Referrers: -</li>
-    <li>Engagement: Number of unique clicks inside the content area. Percentage is clicks vs overall unique page views. Target: 2%</li>
+    <li>Engagement: Number of unique clicks inside the content area. Percentage is clicks vs overall unique page views. Target: 10%</li>
     <li>Time: In minutes. Target: 3 minutes.</li>
     <li>Bounce: Those that took no action during their visit (not even clicking a link to leave the site), these are single page views with back buttons or closes. Target: 60%</li>
   </ul>
@@ -208,6 +208,7 @@ $(document).ready(function() {
 
     // update the report on date change
     function userChangedDate() {
+      console.log('Change requested, refreshing...');
       render_queue_time = 1; // reset the processing throttle
       $('tbody.top-stories').html(''); // empty the results
       var requestDate = moment(document.getElementById("originDate").value, 'YYYY-MM-DD');
