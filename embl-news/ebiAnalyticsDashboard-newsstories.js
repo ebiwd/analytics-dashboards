@@ -54,38 +54,43 @@ function requestIsExpired(requestDate) {
 var render_queue_time = 1;
 // Queue up the requests to not exceed GA's requests per second (10 per second, per IP), 50,000 a day
 // https://developers.google.com/analytics/devguides/config/mgmt/v3/limits-quotas#general_api
-function render_queue(target,processor,dimensions,metrics,filters,shared,resultPosition) {
+function render_queue(processor,row) {
   render_queue_time = render_queue_time + 500; // set requests XXms second apart
 
   if (processor == "traffic-overview") {
     window.setTimeout(function(){
-      render_query_traffic_overview(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_traffic_overview('.traffic-overview','ga:date,ga:nthDay','ga:uniquePageviews',shared['filters']+'',shared,row);
       },render_queue_time);
   }
 
   if (processor == "overview-list") {
     window.setTimeout(function(){
-      render_query_overview(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_overview('.top-stories','ga:pageTitle,ga:pagePath','ga:uniquePageviews',shared['filters']+'',shared,row);
       },render_queue_time);
   }
+
   if (processor == "page-detail") {
     window.setTimeout(function(){
-      render_query_page_detail(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_page_detail('tr.result-'+row,'ga:fullReferrer','ga:uniquePageviews',
+        'ga:pagePath=='+analyticsResults[row].url,shared,row);
       },render_queue_time);
   }
   if (processor == "ui-regions") {
     window.setTimeout(function(){
-      render_query_ui_regions(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_ui_regions('tr.result-'+row,'ga:eventAction','ga:uniqueEvents',
+        'ga:pagePath=='+analyticsResults[row].url,shared,row);
       },render_queue_time);
   }
   if (processor == "page-time") {
     window.setTimeout(function(){
-      render_query_page_time(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_page_time('tr.result-'+row,'ga:pagePath','ga:avgTimeOnPage',
+        'ga:pagePath=='+analyticsResults[row].url,shared,row);
       },render_queue_time);
   }
   if (processor == "leave-rate") {
     window.setTimeout(function(){
-      render_query_leave_rate(target,dimensions,metrics,filters,shared,resultPosition);
+      render_query_leave_rate('tr.result-'+row,'ga:pagePath','ga:bounceRate',
+        'ga:pagePath=='+analyticsResults[row].url,shared,row);
       },render_queue_time);
   }
 }
@@ -186,48 +191,44 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
 
     // once we know the top stories, perform queries about them
     var receivedData = results[0].rows;
-    for (var i = 0; i < receivedData.length; i++) {
+    for (var row = 0; row < receivedData.length; row++) {
       // write to the saved object
-      analyticsResults[i] = new Object();
+      analyticsResults[row] = new Object();
 
-      analyticsResults[i].title = receivedData[i][0];
-      analyticsResults[i].date = parsePublicationDate(receivedData[i][1]);
-      analyticsResults[i].url = receivedData[i][1];
-      analyticsResults[i].pageViews = receivedData[i][2];
+      analyticsResults[row].title = receivedData[row][0];
+      analyticsResults[row].date = parsePublicationDate(receivedData[row][1]);
+      analyticsResults[row].url = receivedData[row][1];
+      analyticsResults[row].pageViews = receivedData[row][2];
 
       // meets the pageviews target?
       var success = iconSuccess;
-      if (analyticsResults[i].pageViews < 250) {
+      if (analyticsResults[row].pageViews < 250) {
         success = iconWarning;
-      } else if (analyticsResults[i].pageViews < 300) {
+      } else if (analyticsResults[row].pageViews < 300) {
         success = iconSoSo;        
       }
 
 
-      $(target).append('<tr class="result-'+ i + '">' + 
+      $(target).append('<tr class="result-'+ row + '">' + 
         '<td>' + 
-        '<span class="label">' + parsePublicationDate(analyticsResults[i].url) + '</span>' +
-        '<div>' + analyticsResults[i].title + '</div>' +
-        '<small><a target="_blank" href="http://news.embl.de' + analyticsResults[i].url + '">'+ analyticsResults[i].url+'</a></small>'+
-        '<br/><small><a class="readmore" href="https://analytics.google.com/analytics/web/#report/content-pages/a21480202w75912813p91186979/%3Fexplorer-table.filter%3D' + encodeURIComponent(analyticsResults[i].url) + '" target="_blank">View GA for this URL</small>' +
+        '<span class="label">' + parsePublicationDate(analyticsResults[row].url) + '</span>' +
+        '<div>' + analyticsResults[row].title + '</div>' +
+        '<small><a target="_blank" href="http://news.embl.de' + analyticsResults[row].url + '">'+ analyticsResults[row].url+'</a></small>'+
+        '<br/><small>' +
+        '<a class="readmore" href="https://analytics.google.com/analytics/web/#report/content-pages/a21480202w75912813p91186979/%3Fexplorer-table.filter%3D' + encodeURIComponent(analyticsResults[row].url) + '" target="_blank">View GA for this URL'+
+        '</small>' +
         '</td>' +
-        '<td>' + success + analyticsResults[i].pageViews + 
+        '<td>' + success + analyticsResults[row].pageViews + 
         '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
 
-    
-// %2Fscience%2F1701-social-genetic-effects-health%2Findex.php
+      // now that we no the top stories, we can make queries about them
+      render_queue('page-detail',row);
 
-      render_queue('tr.result-'+i,'page-detail','ga:fullReferrer','ga:uniquePageviews',
-        'ga:pagePath=='+analyticsResults[i].url,shared,i);
+      render_queue('ui-regions',row);
 
-      render_queue('tr.result-'+i,'ui-regions','ga:eventAction','ga:uniqueEvents',
-        'ga:pagePath=='+analyticsResults[i].url,shared,i);
+      render_queue('page-time',row);
 
-      render_queue('tr.result-'+i,'page-time','ga:pagePath','ga:avgTimeOnPage',
-        'ga:pagePath=='+analyticsResults[i].url,shared,i);
-
-      render_queue('tr.result-'+i,'leave-rate','ga:pagePath','ga:bounceRate',
-        'ga:pagePath=='+analyticsResults[i].url,shared,i);
+      render_queue('leave-rate',row);
     }
 
   });

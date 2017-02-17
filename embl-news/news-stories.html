@@ -174,30 +174,28 @@
 <script src="ebiAnalyticsDashboard-newsstories.js"></script>
 
 <script>
+  // shared paramaters for all charts
+  var shared = [];
+  shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
+  shared['datePeriods'] = ['day','month','year'];
+  shared['dayRange'] = 8; // the number of days you wish to get results for. Make this value +1 (1 week = 8 days, 2 wks = 15 days)
+  shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
+  shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
 
 $(document).ready(function() {
   // Initialise all the queries.
   // This gets invoke when google is ready and when the user calls a refresh by selecting a date
   // requestedOriginDate = YYYYMMDD format, ie: 20170122
   function bootstrapCustomEBIAnalytics(requestedOriginDate) {
-    // shared paramaters for all charts
-    var shared = [];
-    shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
-    shared['datePeriods'] = ['day','month','year'];
-    shared['dayRange'] = 8; // the number of days you wish to get results for. Make this value +1 (1 week = 8 days, 2 wks = 15 days)
-    shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
-    shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
-    shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
 
+    shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
     analyticsAuthorize(shared['clientid']);
 
     // Render traffic overview graph
-    render_queue('.traffic-overview','traffic-overview','ga:date,ga:nthDay','ga:uniquePageviews',
-      shared['filters']+'',shared,0);
+    render_queue('traffic-overview',0);
 
     // Render all the of charts for this view.
-    render_queue('.top-stories','overview-list','ga:pageTitle,ga:pagePath','ga:uniquePageviews',
-      shared['filters']+'',shared,0);
+    render_queue('overview-list',0);
 
 
     // $("#table-report").tablesorter();
