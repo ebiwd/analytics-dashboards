@@ -1,19 +1,40 @@
 // In short: fetches data from google API, show on dashboard
 // you need to authenticate in your local JS
 
-// Store the data as an object.
-// Right now we don't use this for anything, but we could. Maybe we even save this data as a file in seperate process to the viewing...
-var analyticsResults = new Object();
+// shared paramaters for all charts
+var shared = [];
+shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
+shared['datePeriods'] = ['day','month','year'];
+shared['dayRange'] = 8; // the number of days you wish to get results for. Make this value +1 (1 week = 8 days, 2 wks = 15 days)
+shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
+shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
 
-// various reusable icons
-// var iconWarning = '<span class="icon icon-generic is-invalid-label" data-icon="l">  </span>',
-var iconPrefix = '<span class="icon-indicator">',
-    iconSuffix = '</span><br/>';
+$(document).ready(function() {
+  // Initialise all the queries.
+  // This gets invoke when google is ready and when the user calls a refresh by selecting a date
+  // requestedOriginDate = YYYYMMDD format, ie: 20170122
+  function bootstrapCustomEBIAnalytics(requestedOriginDate) {
 
-var iconWarning = iconPrefix + '🤔' + iconSuffix,
-    iconSoSo =    iconPrefix + '😇' + iconSuffix,
-    iconSuccess = iconPrefix + '🎉' + iconSuffix;
+    shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
+    analyticsAuthorize(shared['clientid']);
 
+    // Render traffic overview graph
+    render_queue('traffic-overview',0);
+
+    // Render all the of charts for this view.
+    render_queue('overview-list',0);
+
+    // $("#table-report").tablesorter();
+  }
+
+  // when the GAPI is ready, run the process
+  gapi.analytics.ready(function() {
+    var defaultDateNow = moment().format('YYYYMMDD');
+    bootstrapCustomEBIAnalytics(defaultDateNow);
+    enableUserDatePicking();
+  });
+
+});
 
 // extract the pub date from the url
 function parsePublicationDate(url) {
@@ -22,33 +43,6 @@ function parsePublicationDate(url) {
   var year = yearMonth.slice(0,-2);
   var month = yearMonth.slice(-2);
   return month + '/' + year;
-}
-
-// == NOTE ==
-// This code uses ES6 promises. If you want to use this code in a browser
-// that doesn't supporting promises natively, you'll have to include a polyfill.
-function analyticsAuthorize(clientid) {
-  // Authorize the user immediately if the user has already granted access.
-  // If no access has been created, render an authorize button inside the
-  // element with the ID "embed-api-auth-container".
-  gapi.analytics.auth.authorize({
-    container: 'embed-api-auth-container',
-    clientid: clientid
-  });
-}
-
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-// check if the request has expired (that is: the user changed the params)
-function requestIsExpired(requestDate) {
-  // console.log(moment(requestDate).format('YYYY-MM-DD'),document.getElementById("originDate").value);
-  if (moment(requestDate).format('YYYY-MM-DD') != document.getElementById("originDate").value) {
-    // console.log('expired');
-    return true; // if the dates are out of sync, request has expired
-  }
-  return false; // request is still valid
 }
 
 var render_queue_time = 1;
@@ -159,6 +153,7 @@ function fetch_traffic_overview(target,dimensions,metrics,filters,shared) {
     };
 
     new Chart(makeCanvas('chart-1-container')).Line(data);
+    setChartDefaults();
     generateLegend('legend-1-container', data.datasets);
     // $('#chart-1-container').prepend('<div class="label">text</div>');
 
@@ -198,6 +193,12 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
       analyticsResults[row]['clicks'] = new Object(); // we'll use later
       analyticsResults[row]['referals'] = new Object(); // we'll use later
 
+      // now that we no the top stories, we can make queries about them
+      render_queue('page-detail',row);
+      render_queue('ui-regions',row);
+      render_queue('page-time',row);
+      render_queue('leave-rate',row);
+
       // meets the pageviews target?
       var success = iconSuccess;
       if (analyticsResults[row].pageViews < 250) {
@@ -218,11 +219,6 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
         '<td>' + success + analyticsResults[row].pageViews + 
         '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
 
-      // now that we no the top stories, we can make queries about them
-      render_queue('page-detail',row);
-      render_queue('ui-regions',row);
-      render_queue('page-time',row);
-      render_queue('leave-rate',row);
     }
 
   });
@@ -260,7 +256,6 @@ function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPositi
 
   Promise.all([localQuery]).then(function(results) {
     var receivedData = results[0].rows;
-    // $(target).append('<td class=""></td>');
     
     // save the data
     for (var i = 0; i < receivedData.length; i++) {
@@ -268,6 +263,7 @@ function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPositi
     }
 
     // sort
+    // make a list of which keys have the most referals
     var dataSorted = Object.keys(analyticsResults[resultPosition]['referals']).sort(function(a,b){return analyticsResults[resultPosition]['referals'][b]-analyticsResults[resultPosition]['referals'][a]});
 
     // output the data
@@ -394,7 +390,7 @@ function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPositio
     // update table sorting
     // $("#table-report").trigger('update');
 
-    console.log(analyticsResults[resultPosition]);
+    // console.log(analyticsResults[resultPosition]);
 
     // add pie graph
     var uniqueID = Math.floor(Math.random() * 1000);
@@ -421,19 +417,4 @@ function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPositio
   });
 
 
-}
-
-/**
- * Extend the Embed APIs `gapi.analytics.report.Data` component to
- * return a promise the is fulfilled with the value returned by the API.
- * @param {Object} params The request parameters.
- * @return {Promise} A promise.
- */
-function query(params) {
-  return new Promise(function(resolve, reject) {
-    var data = new gapi.analytics.report.Data({query: params});
-    data.once('success', function(response) { resolve(response); })
-        .once('error', function(response) { reject(response); })
-        .execute();
-  });
 }

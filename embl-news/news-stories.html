@@ -9,7 +9,28 @@
   <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/tablesorter/dist/js/jquery.tablesorter.min.js"></script>
   <script src="../vendor/html2canvas/html2canvas.js"></script>
   <script src="../vendor/html2canvas/html2canvas.svg.js"></script>
-  <script src="../common/screenshot.js"></script>
+  <script src="../common/utilities.js"></script>
+  <script defer="defer" src="../common/screenshot.js"></script>
+  <!-- Load the components and their dependencies. -->
+  <!-- This demo uses the Chart.js graphing library and Moment.js to do date
+       formatting and manipulation. -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+  <!-- Include the ViewSelector2 component script. -->
+  <!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/view-selector2.js"></script> -->
+  <!-- Include the DateRangeSelector component script. -->
+  <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/date-range-selector.js"></script>
+  <!-- Include the ActiveUsers component script. -->
+  <!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/active-users.js"></script> -->
+  <!-- Include the CSS that styles the charts. -->
+  <!-- <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css"> -->
+  <!-- charting stuff -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+  <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css">
+
+  <!-- Write the dashboard code -->
+  <script defer="defer" src="ebiAnalyticsDashboard-newsstories.js"></script>
+
 </head>
 <body>
   <div id="content" role="main" class="row">
@@ -21,7 +42,7 @@
             <li><a href="//github.com/ebiwd/analytics-dashboards">EMBL-EBI Analytics dashboards</a></li>
             <!-- <li class="disabled">Disabled</li> -->
             <li>
-              <span class="show-for-sr">Current: </span> This page
+              <span class="show-for-sr">Current: </span> EMBL News weekly dashbaord
             </li>
           </ul>
         </nav>
@@ -73,16 +94,6 @@
 
 <!-- Via: https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/ -->
 
-<!-- Load the Embed API library. -->
-<script>
-(function(w,d,s,g,js,fs){
-  g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(f){this.q.push(f);}};
-  js=d.createElement(s);fs=d.getElementsByTagName(s)[0];
-  js.src='https://apis.google.com/js/platform.js';
-  fs.parentNode.insertBefore(js,fs);js.onload=function(){g.load('analytics');};
-}(window,document,'script'));
-</script>
-
 <!-- A few misc style tweaks -->
 <style>
   td.tr-referals {
@@ -98,19 +109,6 @@
   }
 </style>
 
-<!-- Load the components and their dependencies. -->
-<!-- This demo uses the Chart.js graphing library and Moment.js to do date
-     formatting and manipulation. -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
-<!-- Include the ViewSelector2 component script. -->
-<!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/view-selector2.js"></script> -->
-<!-- Include the DateRangeSelector component script. -->
-<script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/date-range-selector.js"></script>
-<!-- Include the ActiveUsers component script. -->
-<!-- <script src="https://ga-dev-tools.appspot.com/public/javascript/embed-api/components/active-users.js"></script> -->
-<!-- Include the CSS that styles the charts. -->
-<!-- <link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css"> -->
 
 
 <!-- Add HTML containers to host the dashboard components. -->
@@ -146,94 +144,25 @@
   </ul>
 </div>
 
-<table id="table-report" class="hover tablesorter">
-  <thead>
-    <tr>
-      <th width="">Story</th>
-      <th width="">Views</th>
-      <th width="">Referers</th>
-      <th width="">Engagement</th>
-      <th width="">Time on page (min)</th>
-      <th width="">Bounce %</th>
-    </tr>
-  </thead>
-  <tbody class="top-stories">
-    <!-- <tr class="goal overall"> -->
-  </tbody>
-</table>
+  <table id="table-report" class="hover tablesorter">
+    <thead>
+      <tr>
+        <th width="">Story</th>
+        <th width="">Views</th>
+        <th width="">Referers</th>
+        <th width="">Engagement</th>
+        <th width="">Time on page (min)</th>
+        <th width="">Bounce %</th>
+      </tr>
+    </thead>
+    <tbody class="top-stories">
+      <!-- <tr class="goal overall"> -->
+    </tbody>
+  </table>
 
-<div class="referer-test"></div>
-
-
-<!-- charting stuff -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
-<link rel="stylesheet" href="https://ga-dev-tools.appspot.com/public/css/chartjs-visualizations.css">
-<script src="charting-newstories.js"></script>
-
-<!-- Write the dashboard code -->
-<script src="ebiAnalyticsDashboard-newsstories.js"></script>
-
-<script>
-  // shared paramaters for all charts
-  var shared = [];
-  shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
-  shared['datePeriods'] = ['day','month','year'];
-  shared['dayRange'] = 8; // the number of days you wish to get results for. Make this value +1 (1 week = 8 days, 2 wks = 15 days)
-  shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
-  shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
-
-$(document).ready(function() {
-  // Initialise all the queries.
-  // This gets invoke when google is ready and when the user calls a refresh by selecting a date
-  // requestedOriginDate = YYYYMMDD format, ie: 20170122
-  function bootstrapCustomEBIAnalytics(requestedOriginDate) {
-
-    shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
-    analyticsAuthorize(shared['clientid']);
-
-    // Render traffic overview graph
-    render_queue('traffic-overview',0);
-
-    // Render all the of charts for this view.
-    render_queue('overview-list',0);
+  <div class="referer-test"></div>
 
 
-    // $("#table-report").tablesorter();
-  }
-
-  // allow the user to change the query
-  function enableUserDatePicking() {
-    // set a default date
-    document.getElementById("originDate").value = moment().format('YYYY-MM-DD');
-
-    // update the report on date change
-    function userChangedDate() {
-      console.log('Change requested, refreshing...');
-      render_queue_time = 1; // reset the processing throttle
-      $('tbody.top-stories').html(''); // empty the results
-      var requestDate = moment(document.getElementById("originDate").value, 'YYYY-MM-DD');
-      bootstrapCustomEBIAnalytics(requestDate);
-    }
-
-    // delay the invokation of the date change to not hammer the GAPI
-    var userChangedDateTimeoutID;
-    $('#originDate').change( function () {
-      window.clearTimeout(userChangedDateTimeoutID); // delete any pending change that occured before the timeout cleared
-      userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750);
-    });
-  }
-
-  // when the GAPI is ready, run the process
-  gapi.analytics.ready(function() {
-    var defaultDateNow = moment().format('YYYYMMDD');
-    bootstrapCustomEBIAnalytics(defaultDateNow);
-
-    enableUserDatePicking();
-  });
-
-});
-
-</script>
      </div>
   </section>
 </div><!-- /.container -->
