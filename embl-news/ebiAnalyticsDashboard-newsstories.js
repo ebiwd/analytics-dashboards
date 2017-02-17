@@ -54,48 +54,44 @@ function requestIsExpired(requestDate) {
 var render_queue_time = 1;
 // Queue up the requests to not exceed GA's requests per second (10 per second, per IP), 50,000 a day
 // https://developers.google.com/analytics/devguides/config/mgmt/v3/limits-quotas#general_api
+// We pass in:
+//  - processor = task to be scheduled
+//  - row = result row to work; 0 = global
 function render_queue(processor,row) {
-  render_queue_time = render_queue_time + 500; // set requests XXms second apart
+  render_queue_time += 500; // set requests XXms second apart
 
-  if (processor == "traffic-overview") {
-    window.setTimeout(function(){
-      render_query_traffic_overview('.traffic-overview','ga:date,ga:nthDay','ga:uniquePageviews',shared['filters']+'',shared,row);
-      },render_queue_time);
-  }
-
-  if (processor == "overview-list") {
-    window.setTimeout(function(){
-      render_query_overview('.top-stories','ga:pageTitle,ga:pagePath','ga:uniquePageviews',shared['filters']+'',shared,row);
-      },render_queue_time);
-  }
-
-  if (processor == "page-detail") {
-    window.setTimeout(function(){
-      render_query_page_detail('tr.result-'+row,'ga:fullReferrer','ga:uniquePageviews',
-        'ga:pagePath=='+analyticsResults[row].url,shared,row);
-      },render_queue_time);
-  }
-  if (processor == "ui-regions") {
-    window.setTimeout(function(){
-      render_query_ui_regions('tr.result-'+row,'ga:eventAction','ga:uniqueEvents',
-        'ga:pagePath=='+analyticsResults[row].url,shared,row);
-      },render_queue_time);
-  }
-  if (processor == "page-time") {
-    window.setTimeout(function(){
-      render_query_page_time('tr.result-'+row,'ga:pagePath','ga:avgTimeOnPage',
-        'ga:pagePath=='+analyticsResults[row].url,shared,row);
-      },render_queue_time);
-  }
-  if (processor == "leave-rate") {
-    window.setTimeout(function(){
-      render_query_leave_rate('tr.result-'+row,'ga:pagePath','ga:bounceRate',
-        'ga:pagePath=='+analyticsResults[row].url,shared,row);
-      },render_queue_time);
-  }
+  window.setTimeout(function(){
+    switch (processor) {
+      case 'traffic-overview':
+        fetch_traffic_overview('.traffic-overview','ga:date,ga:nthDay','ga:uniquePageviews',
+          shared['filters']+'',shared,row);
+        break;
+      case 'overview-list':
+        fetch_overview('.top-stories','ga:pageTitle,ga:pagePath','ga:uniquePageviews',
+          shared['filters']+'',shared,row);
+        break;
+      case 'page-detail':
+        fetch_page_detail('tr.result-'+row,'ga:fullReferrer','ga:uniquePageviews',
+          'ga:pagePath=='+analyticsResults[row].url,shared,row);
+        break;
+      case 'ui-regions':
+        fetch_ui_regions('tr.result-'+row,'ga:eventAction','ga:uniqueEvents',
+          'ga:pagePath=='+analyticsResults[row].url,shared,row);
+        break;
+      case 'page-time':
+        fetch_page_time('tr.result-'+row,'ga:pagePath','ga:avgTimeOnPage',
+          'ga:pagePath=='+analyticsResults[row].url,shared,row);
+      case 'leave-rate':
+        fetch_leave_rate('tr.result-'+row,'ga:pagePath','ga:bounceRate',
+          'ga:pagePath=='+analyticsResults[row].url,shared,row);
+        break;
+      default:
+        console.log('Unexpected queue task: ' + processor);
+    }
+  },render_queue_time);
 }
 
-function render_query_traffic_overview(target,dimensions,metrics,filters,shared) {
+function fetch_traffic_overview(target,dimensions,metrics,filters,shared) {
   $('#table-header').html('Top stories from the past ' + (shared['dayRange']-1) + ' days');
 
   var now = shared['originDate']; // .subtract(3, 'day');
@@ -170,7 +166,7 @@ function render_query_traffic_overview(target,dimensions,metrics,filters,shared)
 
 }
 
-function render_query_overview(target,dimensions,metrics,filters,shared) {
+function fetch_overview(target,dimensions,metrics,filters,shared) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -223,11 +219,8 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
 
       // now that we no the top stories, we can make queries about them
       render_queue('page-detail',row);
-
       render_queue('ui-regions',row);
-
       render_queue('page-time',row);
-
       render_queue('leave-rate',row);
     }
 
@@ -250,7 +243,7 @@ function parseReferralName(siteToParse) {
   return siteToParse;
 }
 
-function render_query_page_detail(target,dimensions,metrics,filters,shared,resultPosition) {
+function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -274,7 +267,7 @@ function render_query_page_detail(target,dimensions,metrics,filters,shared,resul
   });
 }
 
-function render_query_ui_regions(target,dimensions,metrics,filters,shared,resultPosition) {
+function fetch_ui_regions(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -325,7 +318,7 @@ function render_query_ui_regions(target,dimensions,metrics,filters,shared,result
   });
 }
 
-function render_query_page_time(target,dimensions,metrics,filters,shared,resultPosition) {
+function fetch_page_time(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
@@ -357,7 +350,7 @@ function render_query_page_time(target,dimensions,metrics,filters,shared,resultP
   });
 }
 
-function render_query_leave_rate(target,dimensions,metrics,filters,shared,resultPosition) {
+function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPosition) {
   if (requestIsExpired(shared['originDate'])) { return; }
   var now = shared['originDate']; // .subtract(3, 'day');
   var localQuery = query({
