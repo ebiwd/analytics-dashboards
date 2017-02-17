@@ -1,7 +1,19 @@
 // In short: fetches data from google API, show on dashboard
 // you need to authenticate in your local JS
 
+// Custom utility functions specific to this dahsboard
+// --------
+// Extract the pub date from the url
+function parsePublicationDate(url) {
+  var yearMonth = url.split('/')[2].substring(0,4);
+      yearMonth = '20' + yearMonth;
+  var year = yearMonth.slice(0,-2);
+  var month = yearMonth.slice(-2);
+  return month + '/' + year;
+}
+
 // shared paramaters for all charts
+// --------
 var shared = [];
 shared['filters'] = 'ga:pagePath!=/index.php;ga:pagePath!@/category/';
 shared['datePeriods'] = ['day','month','year'];
@@ -9,6 +21,8 @@ shared['dayRange'] = 8; // the number of days you wish to get results for. Make 
 shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
 shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
 
+// Bootstrap
+// --------
 $(document).ready(function() {
   // Initialise all the queries.
   // This gets invoke when google is ready and when the user calls a refresh by selecting a date
@@ -36,21 +50,14 @@ $(document).ready(function() {
 
 });
 
-// extract the pub date from the url
-function parsePublicationDate(url) {
-  var yearMonth = url.split('/')[2].substring(0,4);
-      yearMonth = '20' + yearMonth;
-  var year = yearMonth.slice(0,-2);
-  var month = yearMonth.slice(-2);
-  return month + '/' + year;
-}
 
-var render_queue_time = 1;
 // Queue up the requests to not exceed GA's requests per second (10 per second, per IP), 50,000 a day
+// --------
 // https://developers.google.com/analytics/devguides/config/mgmt/v3/limits-quotas#general_api
 // We pass in:
 //  - processor = task to be scheduled
 //  - row = result row to work; 0 = global
+var render_queue_time = 1;
 function render_queue(processor,row) {
   render_queue_time += 500; // set requests XXms second apart
 
@@ -85,6 +92,8 @@ function render_queue(processor,row) {
   },render_queue_time);
 }
 
+// From here down we fetch and render data
+// --------
 function fetch_traffic_overview(target,dimensions,metrics,filters,shared) {
   $('#table-header').html('Top stories from the past ' + (shared['dayRange']-1) + ' days');
 
