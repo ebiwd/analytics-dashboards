@@ -7,9 +7,12 @@ var analyticsResults = new Object();
 
 // various reusable icons
 // var iconWarning = '<span class="icon icon-generic is-invalid-label" data-icon="l">  </span>',
-var iconWarning = '🤔',
-    iconSoSo = '😇',
-    iconSuccess = '🎉';
+var iconPrefix = '<span class="icon-indicator">',
+    iconSuffix = '</span><br/>';
+
+var iconWarning = iconPrefix + '🤔' + iconSuffix,
+    iconSoSo =    iconPrefix + '😇' + iconSuffix,
+    iconSuccess = iconPrefix + '🎉' + iconSuffix;
 
 
 // extract the pub date from the url
@@ -208,7 +211,7 @@ function render_query_overview(target,dimensions,metrics,filters,shared) {
         '<small><a target="_blank" href="http://news.embl.de' + analyticsResults[i].url + '">'+ analyticsResults[i].url+'</a></small>'+
         '<br/><small><a class="readmore" href="https://analytics.google.com/analytics/web/#report/content-pages/a21480202w75912813p91186979/%3Fexplorer-table.filter%3D' + encodeURIComponent(analyticsResults[i].url) + '" target="_blank">View GA for this URL</small>' +
         '</td>' +
-        '<td>' + analyticsResults[i].pageViews + '<br/>' + success + 
+        '<td>' + success + analyticsResults[i].pageViews + 
         '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
 
     
@@ -316,7 +319,7 @@ function render_query_ui_regions(target,dimensions,metrics,filters,shared,result
     if (engagementPercent < 2) {
       success = iconWarning;
     }
-    $(target + ' td.tr-ui-regions').append(success);
+    $(target + ' td.tr-ui-regions').prepend(success);
     // $(target + ' td.tr-ui-regions').append('Engagement %: ' + + '<br/>');
   });
 }
@@ -349,7 +352,7 @@ function render_query_page_time(target,dimensions,metrics,filters,shared,resultP
 
 
 
-    $(target + ' td.tr-time-on-page').append('' + timeOnPage + '<br/>' + success );
+    $(target + ' td.tr-time-on-page').append('' +success + timeOnPage);
   });
 }
 
@@ -381,7 +384,7 @@ function render_query_leave_rate(target,dimensions,metrics,filters,shared,result
 
 
     var leaveRate = Math.round((receivedData[0][1]) * 100) / 100;
-    $(target + ' td.tr-leave-rate').append('' + leaveRate +'% <br/>' + success);
+    $(target + ' td.tr-leave-rate').append(success + leaveRate +'%');
 
 
     // update table sorting
@@ -389,7 +392,7 @@ function render_query_leave_rate(target,dimensions,metrics,filters,shared,result
 
     // add pie graph
     var uniqueID = Math.floor(Math.random() * 1000);
-    $(target + ' td.tr-leave-rate').prepend('<div id="leave-container-'+uniqueID+'"></div>');
+    $(target + ' td.tr-leave-rate').append('<div id="leave-container-'+uniqueID+'"></div>');
     var labels = new Array();
 
     var data = [];
