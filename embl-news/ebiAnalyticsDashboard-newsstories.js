@@ -44,25 +44,26 @@ function enableUserDatePicking() {
   });
 }
 
+// Initialise all the queries.
+// This gets invoke when google is ready and when the user calls a refresh by selecting a date
+// requestedOriginDate = YYYYMMDD format, ie: 20170122
+function bootstrapCustomEBIAnalytics(requestedOriginDate) {
+
+  shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
+  analyticsAuthorize(shared['clientid']);
+
+  // Render traffic overview graph
+  render_queue('traffic-overview',0);
+
+  // Render all the of charts for this view.
+  render_queue('overview-list',0);
+
+  // $("#table-report").tablesorter();
+}
+
 // Bootstrap
 // --------
 $(document).ready(function() {
-  // Initialise all the queries.
-  // This gets invoke when google is ready and when the user calls a refresh by selecting a date
-  // requestedOriginDate = YYYYMMDD format, ie: 20170122
-  function bootstrapCustomEBIAnalytics(requestedOriginDate) {
-
-    shared['originDate'] = moment(requestedOriginDate, "YYYYMMDD"); // we allow user to specify an origin date
-    analyticsAuthorize(shared['clientid']);
-
-    // Render traffic overview graph
-    render_queue('traffic-overview',0);
-
-    // Render all the of charts for this view.
-    render_queue('overview-list',0);
-
-    // $("#table-report").tablesorter();
-  }
 
   // when the GAPI is ready, run the process
   gapi.analytics.ready(function() {
