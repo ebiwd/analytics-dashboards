@@ -18,27 +18,7 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// allow the user to change the query
-function enableUserDatePicking() {
-  // set a default date
-  document.getElementById("originDate").value = moment().format('YYYY-MM-DD');
 
-  // update the report on date change
-  function userChangedDate() {
-    console.log('Change requested, refreshing...');
-    render_queue_time = 1; // reset the processing throttle
-    $('tbody.top-stories').html(''); // empty the results
-    var requestDate = moment(document.getElementById("originDate").value, 'YYYY-MM-DD');
-    bootstrapCustomEBIAnalytics(requestDate);
-  }
-
-  // delay the invokation of the date change to not hammer the GAPI
-  var userChangedDateTimeoutID;
-  $('#originDate').change( function () {
-    window.clearTimeout(userChangedDateTimeoutID); // delete any pending change that occured before the timeout cleared
-    userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750);
-  });
-}
 
 // check if the request has expired (that is: the user changed the params)
 function requestIsExpired(requestDate) {

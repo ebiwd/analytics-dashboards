@@ -21,6 +21,29 @@ shared['dayRange'] = 8; // the number of days you wish to get results for. Make 
 shared['viewID'] = ['ga:91186979'];  //The GA property we want to view: www.ebi.ac.uk
 shared['clientid'] = '1025857412047-p3jieogi7mgkhb0dre41rm2ge3r8jn0s.apps.googleusercontent.com'; // get at https://console.developers.google.com/apis/credentials
 
+// Allow the user to change the query (date)
+// --------
+function enableUserDatePicking() {
+  // set a default date
+  document.getElementById("originDate").value = moment().format('YYYY-MM-DD');
+
+  // update the report on date change
+  function userChangedDate() {
+    console.log('Change requested, refreshing...');
+    render_queue_time = 1; // reset the processing throttle
+    $('tbody.top-stories').html(''); // empty the results
+    var requestDate = moment(document.getElementById("originDate").value, 'YYYY-MM-DD');
+    bootstrapCustomEBIAnalytics(requestDate);
+  }
+
+  // delay the invokation of the date change to not hammer the GAPI
+  var userChangedDateTimeoutID;
+  $('#originDate').change( function () {
+    window.clearTimeout(userChangedDateTimeoutID); // delete any pending change that occured before the timeout cleared
+    userChangedDateTimeoutID = window.setTimeout(userChangedDate, 750);
+  });
+}
+
 // Bootstrap
 // --------
 $(document).ready(function() {
