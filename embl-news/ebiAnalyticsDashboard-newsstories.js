@@ -106,6 +106,7 @@ function render_queue(processor,row) {
       case 'page-time':
         fetch_page_time('tr.result-'+row,'ga:pagePath','ga:avgTimeOnPage',
           'ga:pagePath=='+analyticsResults[row].url,shared,row);
+        break;
       case 'leave-rate':
         fetch_leave_rate('tr.result-'+row,'ga:pagePath','ga:bounceRate',
           'ga:pagePath=='+analyticsResults[row].url,shared,row);
@@ -260,8 +261,8 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
 
 // convert facebook.com/ to Facebook, etc.
 function parseReferralName(siteToParse) {
-  var original =     ['facebook','t.co',   'google','pinterest','linkedin','ebi.ac','rssfeed','direct']
-  var replacements = ['Facebook','Twitter','Google','Pinterest','LinkedIn','EBI',   'RSS',    'Not specificed or bookmark']
+  var original =     ['facebook','t.co',   'google','pinterest','linkedin','ebi.ac','rssfeed','direct',                     'europeanmolecularbiologylaboratory.createsend1.com']
+  var replacements = ['Facebook','Twitter','Google','Pinterest','LinkedIn','EBI',   'RSS',    'Not specificed or bookmark', 'EMBL.createsend']
 
   for (var i = 0; i < original.length; i++) {
     if (siteToParse.indexOf(original[i]) >= 0) {
