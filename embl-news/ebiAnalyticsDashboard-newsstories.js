@@ -269,6 +269,10 @@ function parseReferralName(siteToParse) {
     }
   }
 
+  // Break any remaining long urls at slash
+  // We shouldn't have any http/s at this point
+  siteToParse = siteToParse.split('/')[0];
+
   // no match, return what it was:
   return siteToParse;
 }
