@@ -37,60 +37,20 @@
     <h2>EMBL News weekly dashbaord</h2>
     <section>
 
-        <nav aria-label="You are here:" role="navigation">
-          <ul class="breadcrumbs">
-            <li><a href="//github.com/ebiwd/analytics-dashboards">EMBL-EBI Analytics dashboards</a></li>
-            <!-- <li class="disabled">Disabled</li> -->
-            <li>
-              <span class="show-for-sr">Current: </span> EMBL News weekly dashbaord
-            </li>
-          </ul>
-        </nav>
-
-        <div class="row" id="main-content-area">
-
-<ul class="accordion" data-accordion data-multi-expand="true">
-
-  <li class="accordion-item" data-accordion-item>
-    <a href="#" class="accordion-title">Conceptual change list</a>
-    <div class="accordion-content" data-tab-content>
-
-      <ul>
-        <li>JS link/event tracking</li>
-        <ul>
-          <li>Add ratio of clicks on content to overall page views</li>
-          <li>Additional metrics and info might come in handy, such as pages (on the EMBL websites) visited from this page, searches performed, other actions taken (e.g. share button clicked, newsletter subscription etc.).</li>
-        </ul>
-        <li>Perhaps we should add desktop vs mobile stats per article?</li>
+    <nav aria-label="You are here:" role="navigation">
+      <ul class="breadcrumbs">
+        <li><a href="//github.com/ebiwd/analytics-dashboards">EMBL-EBI Analytics dashboards</a></li>
+        <!-- <li class="disabled">Disabled</li> -->
+        <li>
+          <span class="show-for-sr">Current: </span> EMBL News weekly dashbaord
+        </li>
       </ul>
-    </div>
-  </li>  <li class="accordion-item" data-accordion-item>
-    <a href="#" class="accordion-title">Polishing list</a>
-    <div class="accordion-content" data-tab-content>
+    </nav>
 
-      <ul>
-        <li>Referers: Aggregate stats</li>
-        <li>And I’m wondering whether we should have a line in the chart pointing to an average traffic..or the green/orange/red indicator showing how the number of views relate to the average article... Like the idea of various “averages”. Instinct suggest that metric should come from a human — if you will: targets for news stories for # of visits, bounce rate, time on page, etc.</li>
-        <li>Lock date selector to weeks</li>
-        <li>Dev tasks</li>
-        <ul>
-          <li>Optimise code structure</li>
-          <li>Expose somewhere for others to access. gh-pages? (users will still need to login to GA)</li>
-        </ul>
-      </ul>
-    </div>
-  </li>
-  <li class="accordion-item is-active" data-accordion-item>
-    <a href="#" class="accordion-title">Options</a>
-    <div class="accordion-content" data-tab-content>
-      <label for="originDate">Pick an end date for the week's report</label>
-      <p class="small">Note, the report period will round to weekly units. Format is DD-MM-YYYY.</p>
-      <input id="originDate" type="date" value=""/>
-    </div>
-  </li>
-</ul>
+    <div class="" id="main-content-area">
 
-<div class="tools"></div>
+
+
 
 <!-- Via: https://ga-dev-tools.appspot.com/embed-api/third-party-visualizations/ -->
 
@@ -103,7 +63,7 @@
   }
   table tbody td {
     vertical-align: top;
-  }  
+  }
   .icon-indicator {
     font-size: 1.5rem;
   }
@@ -112,15 +72,30 @@
 
 
 <!-- Add HTML containers to host the dashboard components. -->
-<div>
-  <pre><div id="embed-api-auth-container"></div></pre>
-  <!-- <div id="view-selector-container"></div> -->
-  <div id="view-name"></div>
-  <div id="active-users-container"></div>
+<h3>Options</h3>
+<div class="row">
+  <div class="columns medium-3">
+    <pre><div id="embed-api-auth-container"></div></pre>
+    <!-- <div id="view-selector-container"></div> -->
+    <div id="view-name"></div>
+    <div id="active-users-container"></div>
+  </div>
+  <div class="columns medium-2">
+    <div class="tools"></div>
+  </div>
+  <div class="columns medium-7">
+    <label for="originDate">Pick an end date for the week's report</label>
+    <p class="small">Note, the report period will round to weekly units. Format is DD-MM-YYYY.</p>
+    <input id="originDate" type="date" value=""/>
+  </div>
 </div>
 
+
+
 <h2 class="local-title">Loading...</h2>
-<cite class="local-description"></cite>
+<p class="local-description">
+If you have yet to authenticate through this webpage, you need to click the orange button above. (Note: you also need to be able ot access the EMBL Google Analytics account. If you're not sure, <a href="https://analytics.google.com/analytics/web/#embed/report-home/a21480202w75912813p78446688/">try this link</a>.)
+</p>
 
 <div class="Chartjs">
   <div class="label"></div>
@@ -162,6 +137,39 @@
 
   <div class="referer-test"></div>
 
+
+  <ul class="accordion" data-accordion data-multi-expand="true">
+
+    <li class="accordion-item is-active" data-accordion-item>
+      <a href="#" class="accordion-title">Conceptual change list</a>
+      <div class="accordion-content" data-tab-content>
+
+        <ul>
+          <li>JS link/event tracking</li>
+          <ul>
+            <li>Add ratio of clicks on content to overall page views</li>
+            <li>Additional metrics and info might come in handy, such as pages (on the EMBL websites) visited from this page, searches performed, other actions taken (e.g. share button clicked, newsletter subscription etc.).</li>
+          </ul>
+          <li>Perhaps we should add desktop vs mobile stats per article?</li>
+        </ul>
+      </div>
+    </li>  <li class="accordion-item" data-accordion-item>
+      <a href="#" class="accordion-title">Polishing list</a>
+      <div class="accordion-content" data-tab-content>
+
+        <ul>
+          <li>Referers: Aggregate stats</li>
+          <li>And I’m wondering whether we should have a line in the chart pointing to an average traffic..or the green/orange/red indicator showing how the number of views relate to the average article... Like the idea of various “averages”. Instinct suggest that metric should come from a human — if you will: targets for news stories for # of visits, bounce rate, time on page, etc.</li>
+          <li>Lock date selector to weeks</li>
+          <li>Dev tasks</li>
+          <ul>
+            <li>Optimise code structure</li>
+            <li>Expose somewhere for others to access. gh-pages? (users will still need to login to GA)</li>
+          </ul>
+        </ul>
+      </div>
+    </li>
+  </ul>
 
      </div>
   </section>

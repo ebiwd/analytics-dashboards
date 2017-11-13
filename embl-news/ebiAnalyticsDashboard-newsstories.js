@@ -83,7 +83,7 @@ $(document).ready(function() {
 //  - row = result row to work; 0 = global
 var render_queue_time = 1;
 function render_queue(processor,row) {
-  render_queue_time += 500; // set requests XXms second apart
+  render_queue_time += 500; // set requests N ms second apart
 
   window.setTimeout(function(){
     switch (processor) {
@@ -163,7 +163,6 @@ function fetch_traffic_overview(target,dimensions,metrics,filters,shared) {
     var data1 = results[0].rows.map(function(row) { return +row[2]; });
     var data2 = results[1].rows.map(function(row) { return +row[2]; });
 
-
     var data = {
       labels : labels,
       datasets : [
@@ -238,11 +237,11 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
       if (analyticsResults[row].pageViews < 250) {
         success = iconWarning;
       } else if (analyticsResults[row].pageViews < 300) {
-        success = iconSoSo;        
+        success = iconSoSo;
       }
 
-      $(target).append('<tr class="result-'+ row + '">' + 
-        '<td>' + 
+      $(target).append('<tr class="result-'+ row + '">' +
+        '<td>' +
         '<span class="label">' + parsePublicationDate(analyticsResults[row].url) + '</span>' +
         '<div>' + analyticsResults[row].title + '</div>' +
         '<small><a target="_blank" href="http://news.embl.de' + analyticsResults[row].url + '">'+ analyticsResults[row].url+'</a></small>'+
@@ -250,8 +249,8 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
         '<a class="readmore" href="https://analytics.google.com/analytics/web/#report/content-pages/a21480202w75912813p91186979/%3Fexplorer-table.filter%3D' + encodeURIComponent(analyticsResults[row].url) + '" target="_blank">View GA for this URL'+
         '</small>' +
         '</td>' +
-        '<td>' + success + analyticsResults[row].pageViews + 
-        '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');      
+        '<td>' + success + analyticsResults[row].pageViews +
+        '</td><td class="tr-referals small"></td><td class="tr-ui-regions"></td><td class="tr-time-on-page"></td><td class="tr-leave-rate"></td></tr>');
 
     }
 
@@ -261,8 +260,8 @@ function fetch_overview(target,dimensions,metrics,filters,shared) {
 
 // convert facebook.com/ to Facebook, etc.
 function parseReferralName(siteToParse) {
-  var original =     ['facebook','t.co',   'google','pinterest','linkedin','ebi.ac','rssfeed','direct',                     'europeanmolecularbiologylaboratory.createsend1.com']
-  var replacements = ['Facebook','Twitter','Google','Pinterest','LinkedIn','EBI',   'RSS',    'Not specificed or bookmark', 'EMBL.createsend']
+  var original =     ['facebook','t.co', 'google','pinterest','linkedin','ebi.ac','rssfeed','direct',                     'europeanmolecularbiologylaboratory.createsend1.com']
+  var replacements = ['Facebook','Twitter','Google','Pinterest','LinkedIn','EBI', 'RSS', 'Not specificed or bookmark', 'EMBL.createsend']
 
   for (var i = 0; i < original.length; i++) {
     if (siteToParse.indexOf(original[i]) >= 0) {
@@ -294,10 +293,10 @@ function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPositi
 
   Promise.all([localQuery]).then(function(results) {
     var receivedData = results[0].rows;
-    
+
     // save the data
     for (var i = 0; i < receivedData.length; i++) {
-      analyticsResults[resultPosition]['referals'][parseReferralName(receivedData[i][0])] = receivedData[i][1]; 
+      analyticsResults[resultPosition]['referals'][parseReferralName(receivedData[i][0])] = receivedData[i][1];
     }
 
     // sort
@@ -308,7 +307,7 @@ function fetch_page_detail(target,dimensions,metrics,filters,shared,resultPositi
     dataSorted.forEach(function(element) {
       $(target+' td.tr-referals').append('<tr><td>' + element +'</td><td>' + analyticsResults[resultPosition]['referals'][element] + '</td></tr>');
     });
-      
+
   });
 }
 
@@ -328,13 +327,15 @@ function fetch_ui_regions(target,dimensions,metrics,filters,shared,resultPositio
 
   Promise.all([localQuery]).then(function(results) {
 
+    $(target + ' td.tr-ui-regions').html(''); //empty
+
     var receivedData = results[0].rows;
     // console.table(receivedData);
 
     // track where users engaged
     var totalContentClicks = 0,
         totalSiteNavClicks = 0;
-    
+
     for (var i = 0; i < receivedData.length; i++) {
       // is it a UI region?
       if (receivedData[i][0].indexOf('UI Element') >= 0) {
@@ -347,8 +348,8 @@ function fetch_ui_regions(target,dimensions,metrics,filters,shared,resultPositio
     }
 
     // save the data
-    analyticsResults[resultPosition]['clicks'].content = totalContentClicks; 
-    analyticsResults[resultPosition]['clicks'].siteNav = totalSiteNavClicks; 
+    analyticsResults[resultPosition]['clicks'].content = totalContentClicks;
+    analyticsResults[resultPosition]['clicks'].siteNav = totalSiteNavClicks;
 
     var engagementPercent = Math.floor(totalContentClicks / (totalContentClicks+Math.floor(analyticsResults[resultPosition].pageViews)) * 1000) / 10; // the number of unique content clicks vs unique page views
 
@@ -380,8 +381,10 @@ function fetch_page_time(target,dimensions,metrics,filters,shared,resultPosition
   });
 
   Promise.all([localQuery]).then(function(results) {
+    $(target + ' td.tr-time-on-page').html(''); //empty
+
     // save the data
-    analyticsResults[resultPosition].pageTime = results[0].rows[0][1]; 
+    analyticsResults[resultPosition].pageTime = results[0].rows[0][1];
 
     var timeOnPage = Math.round((analyticsResults[resultPosition].pageTime / 60) * 100) / 100;
     // meets the pageviews target?
@@ -389,7 +392,7 @@ function fetch_page_time(target,dimensions,metrics,filters,shared,resultPosition
     if (timeOnPage < 2) {
       success = iconWarning;
     } else if (timeOnPage < 3) {
-      success = iconSoSo;        
+      success = iconSoSo;
     }
 
     $(target + ' td.tr-time-on-page').append('' +success + timeOnPage);
@@ -411,15 +414,17 @@ function fetch_leave_rate(target,dimensions,metrics,filters,shared,resultPositio
   });
 
   Promise.all([localQuery]).then(function(results) {
+    $(target + ' td.tr-leave-rate').html(''); //empty
+
     // save the data
-    analyticsResults[resultPosition].bounceRate = results[0].rows[0][1]; 
+    analyticsResults[resultPosition].bounceRate = results[0].rows[0][1];
 
     // meets the pageviews target?
     var success = iconSuccess;
     if (analyticsResults[resultPosition].bounceRate > 80) {
       success = iconWarning;
     } else if (analyticsResults[resultPosition].bounceRate > 60) {
-      success = iconSoSo;        
+      success = iconSoSo;
     }
 
     var leavePercent = Math.round((analyticsResults[resultPosition].bounceRate) * 100) / 100;
