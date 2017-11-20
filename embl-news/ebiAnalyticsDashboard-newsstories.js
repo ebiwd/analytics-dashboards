@@ -65,8 +65,8 @@ function bootstrapCustomEBIAnalytics(requestedOriginDate) {
 // --------
 $(document).ready(function() {
 
-  // when the GAPI is ready, run the process
   gapi.analytics.ready(function() {
+    // when the GAPI is ready, run the process
     var defaultDateNow = moment().format('YYYYMMDD');
     bootstrapCustomEBIAnalytics(defaultDateNow);
     enableUserDatePicking();

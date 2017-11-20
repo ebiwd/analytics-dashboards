@@ -50,6 +50,20 @@ function analyticsAuthorize(clientid) {
     container: 'embed-api-auth-container',
     clientid: clientid
   });
+
+  gapi.analytics.auth.on('signIn', function() {
+    $('#logout-container').show();
+  });
+
+  gapi.analytics.auth.on('signOut', function() {
+    $('#logout-container').hide();
+  });
+}
+
+// a simple logout function
+// docs: https://developers.google.com/analytics/devguides/reporting/embed/v1/component-reference#auth
+function analyticsLogout() {
+  gapi.analytics.auth.signOut();
 }
 
 
